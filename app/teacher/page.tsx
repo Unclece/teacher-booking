@@ -56,6 +56,7 @@ export default function TeacherDashboard() {
     await addAvailability(newAvail.day, newAvail.start, newAvail.end)
     setNewAvail({ day: 0, start: '18:30', end: '20:30' })
     setShowAddForm(false)
+    await new Promise(resolve => setTimeout(resolve, 300))
     loadData()
   }
 
