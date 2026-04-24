@@ -11,7 +11,7 @@ import {
   completeBooking,
 } from '@/lib/supabase'
 
-const DAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default function TeacherDashboard() {
   const [isAuth, setIsAuth] = useState(false)
@@ -76,13 +76,36 @@ export default function TeacherDashboard() {
     loadData()
   }
 
+  const generateWeekView = () => {
+    const today = new Date()
+    const currentDay = today.getDay()
+    const diffToMonday = (currentDay === 0 ? -6 : 1) - currentDay
+    const mondayDate = new Date(today)
+    mondayDate.setDate(today.getDate() + diffToMonday)
+
+    const week = []
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(mondayDate)
+      date.setDate(mondayDate.getDate() + i)
+      week.push({
+        dayOfWeek: (i + 1) % 7,
+        date: date,
+        dayName: DAYS[(i + 1) % 7],
+        dateStr: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      })
+    }
+    return week
+  }
+
   if (!isAuth) return null
+
+  const week = generateWeekView()
 
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-600 text-white p-4 shadow">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">老师控制台</h1>
+          <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
           <button
             onClick={() => {
               sessionStorage.removeItem('teacher_auth')
@@ -90,15 +113,61 @@ export default function TeacherDashboard() {
             }}
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded"
           >
-            登出
+            Logout
           </button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 开放时间管理 */}
+      <main className="max-w-7xl mx-auto p-6">
+        {/* Week View Calendar */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4">📅 This Week's Schedule</h2>
+          <div className="grid grid-cols-7 gap-2">
+            {week.map((day) => {
+              const dayAvailability = availability.filter(
+                (a) => a.day_of_week === day.dayOfWeek
+              )
+              const isOpen = dayAvailability.length > 0
+
+              return (
+                <div key={day.dayOfWeek} className="border rounded-lg overflow-hidden">
+                  <div
+                    className={`p-3 text-center font-bold text-white ${
+                      isOpen ? 'bg-green-600' : 'bg-gray-400'
+                    }`}
+                  >
+                    <div className="text-sm">{day.dayName}</div>
+                    <div className="text-xs">{day.dateStr}</div>
+                  </div>
+                  <div className="p-2 min-h-24 bg-gray-50">
+                    {isOpen ? (
+                      <div className="text-xs space-y-1">
+                        {dayAvailability.map((avail, idx) => (
+                          <div
+                            key={idx}
+                            className="bg-green-100 border border-green-400 rounded p-1 text-green-900"
+                          >
+                            {avail.start_time}-{avail.end_time}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-500 flex items-center justify-center h-full">
+                        Closed
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Cards Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Open Hours Management */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">📅 开放时段</h2>
+          <h2 className="text-xl font-bold mb-4">📅 Open Hours</h2>
 
           <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
             {availability.map((avail) => (
@@ -113,7 +182,7 @@ export default function TeacherDashboard() {
                   onClick={() => handleDeleteAvailability(avail.id)}
                   className="text-red-500 hover:text-red-700 font-bold"
                 >
-                  删除
+                  Delete
                 </button>
               </div>
             ))}
@@ -122,7 +191,7 @@ export default function TeacherDashboard() {
           {showAddForm ? (
             <form onSubmit={handleAddAvailability} className="space-y-3">
               <div>
-                <label className="block text-sm font-bold mb-1">星期</label>
+                <label className="block text-sm font-bold mb-1">Day of Week</label>
                 <select
                   value={newAvail.day}
                   onChange={(e) =>
@@ -139,7 +208,7 @@ export default function TeacherDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-1">开始时间</label>
+                <label className="block text-sm font-bold mb-1">Start Time</label>
                 <input
                   type="time"
                   value={newAvail.start}
@@ -151,7 +220,7 @@ export default function TeacherDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold mb-1">结束时间</label>
+                <label className="block text-sm font-bold mb-1">End Time</label>
                 <input
                   type="time"
                   value={newAvail.end}
@@ -166,14 +235,14 @@ export default function TeacherDashboard() {
                 type="submit"
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded"
               >
-                添加
+                Add
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
                 className="w-full bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 rounded"
               >
-                取消
+                Cancel
               </button>
             </form>
           ) : (
@@ -181,20 +250,20 @@ export default function TeacherDashboard() {
               onClick={() => setShowAddForm(true)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded"
             >
-              + 添加时段
+              + Add Time Slot
             </button>
           )}
         </div>
 
-        {/* 学生管理 */}
+        {/* Student Management */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">👥 学生列表</h2>
+          <h2 className="text-xl font-bold mb-4">👥 Student List</h2>
 
           <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
             {students.map((student) => (
               <div key={student.id} className="bg-gray-50 p-2 rounded text-sm">
                 <p className="font-bold">{student.name}</p>
-                <p className="text-gray-600">余额: {student.credit_hours} 课时</p>
+                <p className="text-gray-600">Balance: {student.credit_hours} credit hours</p>
               </div>
             ))}
           </div>
@@ -202,7 +271,7 @@ export default function TeacherDashboard() {
           <form onSubmit={handleAddStudent} className="space-y-2">
             <input
               type="text"
-              placeholder="学生名字"
+              placeholder="Student Name"
               value={newStudent.name}
               onChange={(e) =>
                 setNewStudent({ ...newStudent, name: e.target.value })
@@ -212,7 +281,7 @@ export default function TeacherDashboard() {
             />
             <input
               type="email"
-              placeholder="邮箱"
+              placeholder="Email"
               value={newStudent.email}
               onChange={(e) =>
                 setNewStudent({ ...newStudent, email: e.target.value })
@@ -222,7 +291,7 @@ export default function TeacherDashboard() {
             />
             <input
               type="tel"
-              placeholder="电话"
+              placeholder="Phone"
               value={newStudent.phone}
               onChange={(e) =>
                 setNewStudent({ ...newStudent, phone: e.target.value })
@@ -233,14 +302,14 @@ export default function TeacherDashboard() {
               type="submit"
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-sm"
             >
-              添加学生
+              Add Student
             </button>
           </form>
         </div>
 
-        {/* 课表 */}
+        {/* Class Schedule */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">📚 最近课程</h2>
+          <h2 className="text-xl font-bold mb-4">📚 Recent Classes</h2>
 
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {bookings.map((booking) => (
@@ -248,12 +317,12 @@ export default function TeacherDashboard() {
                 key={booking.id}
                 className="bg-gray-50 p-3 rounded text-sm border-l-4 border-blue-500"
               >
-                <p className="font-bold">{booking.students?.name || '未知学生'}</p>
+                <p className="font-bold">{booking.students?.name || 'Unknown Student'}</p>
                 <p className="text-gray-600 text-xs">
                   {new Date(booking.booking_time).toLocaleString('zh-CN')}
                 </p>
                 <p className="text-xs mb-2">
-                  状态:{' '}
+                  Status:{' '}
                   <span
                     className={
                       booking.status === 'completed'
@@ -264,10 +333,10 @@ export default function TeacherDashboard() {
                     }
                   >
                     {booking.status === 'completed'
-                      ? '已完成'
+                      ? 'Completed'
                       : booking.status === 'cancelled'
-                        ? '已取消'
-                        : '待上课'}
+                        ? 'Cancelled'
+                        : 'Scheduled'}
                   </span>
                 </p>
                 {booking.status === 'scheduled' && (
@@ -275,12 +344,13 @@ export default function TeacherDashboard() {
                     onClick={() => handleCompleteBooking(booking.id)}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-1 rounded text-xs"
                   >
-                    标记完成
+                    Mark Complete
                   </button>
                 )}
               </div>
             ))}
           </div>
+        </div>
         </div>
       </main>
     </div>

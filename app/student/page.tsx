@@ -11,7 +11,7 @@ import {
   cancelBooking,
 } from '@/lib/supabase'
 
-const DAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default function StudentDashboard() {
   const [studentId, setStudentId] = useState('')
@@ -67,7 +67,7 @@ export default function StudentDashboard() {
 
   const handleBookClass = async () => {
     if (!selectedTime) {
-      alert('请选择时间')
+      alert('Please select a time')
       return
     }
 
@@ -85,16 +85,16 @@ export default function StudentDashboard() {
 
     const { error } = await bookClass(studentId, selectedDate.toISOString())
     if (error) {
-      alert('预约失败: ' + error.message)
+      alert('Booking failed: ' + error.message)
     } else {
-      alert('预约成功！')
+      alert('Booking successful!')
       setSelectedTime('')
       loadData(studentId)
     }
   }
 
   const handleCancelBooking = async (bookingId: string) => {
-    if (confirm('确定要取消这节课吗？')) {
+    if (confirm('Are you sure you want to cancel this class?')) {
       await cancelBooking(bookingId, studentId)
       loadData(studentId)
     }
@@ -118,7 +118,7 @@ export default function StudentDashboard() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">{studentInfo.name}</h1>
-            <p className="text-sm">余额: {studentInfo.credit_hours} 课时</p>
+            <p className="text-sm">Balance: {studentInfo.credit_hours} credit hours</p>
           </div>
           <button
             onClick={() => {
@@ -127,19 +127,19 @@ export default function StudentDashboard() {
             }}
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded"
           >
-            登出
+            Logout
           </button>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 预约课程 */}
+        {/* Book Class */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">📅 预约课程</h2>
+          <h2 className="text-xl font-bold mb-4">📅 Book Class</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold mb-2">选择星期</label>
+              <label className="block text-sm font-bold mb-2">Select Day</label>
               <select
                 value={selectedDay}
                 onChange={(e) => {
@@ -157,7 +157,7 @@ export default function StudentDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold mb-2">选择时间</label>
+              <label className="block text-sm font-bold mb-2">Select Time</label>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {availability
                   .filter((a) => a.day_of_week === selectedDay)
@@ -197,13 +197,13 @@ export default function StudentDashboard() {
               disabled={!selectedTime || studentInfo.credit_hours < 1}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 rounded"
             >
-              确认预约 (消耗1课时)
+              Confirm Booking (Use 1 credit hour)
             </button>
           </div>
 
-          {/* 固定订阅 */}
+          {/* Recurring Classes */}
           <div className="mt-6 border-t pt-4">
-            <h3 className="font-bold mb-3">🔄 固定订课</h3>
+            <h3 className="font-bold mb-3">🔄 Recurring Classes</h3>
             <div className="space-y-2 text-sm">
               {availability.map((avail) => {
                 const [startH, startM] = avail.start_time.split(':')
@@ -245,13 +245,13 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* 我的课程 */}
+        {/* My Classes */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">📚 我的课程</h2>
+          <h2 className="text-xl font-bold mb-4">📚 My Classes</h2>
 
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {userBookings.length === 0 ? (
-              <p className="text-gray-500">还没有预约课程</p>
+              <p className="text-gray-500">No classes booked</p>
             ) : (
               userBookings.map((booking) => (
                 <div
@@ -268,13 +268,13 @@ export default function StudentDashboard() {
                     {new Date(booking.booking_time).toLocaleString('zh-CN')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    状态:{' '}
+                    Status:{' '}
                     <span className="font-bold">
                       {booking.status === 'completed'
-                        ? '已完成'
+                        ? 'Completed'
                         : booking.status === 'cancelled'
-                          ? '已取消'
-                          : '待上课'}
+                          ? 'Cancelled'
+                          : 'Scheduled'}
                     </span>
                   </p>
                   {booking.status === 'scheduled' && (
@@ -282,7 +282,7 @@ export default function StudentDashboard() {
                       onClick={() => handleCancelBooking(booking.id)}
                       className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-1 rounded text-sm"
                     >
-                      取消课程
+                      Cancel Class
                     </button>
                   )}
                 </div>

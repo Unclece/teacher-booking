@@ -19,14 +19,14 @@ export default function Home() {
         sessionStorage.setItem('teacher_auth', 'true')
         window.location.href = '/teacher'
       } else {
-        setError('密码错误')
+        setError('Password incorrect')
       }
     } else {
       if (password) {
         sessionStorage.setItem('student_id', password)
         window.location.href = '/student'
       } else {
-        setError('请输入学生ID')
+        setError('Please enter Student ID')
       }
     }
   }
@@ -35,7 +35,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">定课系统</h1>
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Class Booking System</h1>
 
           <div className="space-y-4">
             <button
@@ -45,7 +45,7 @@ export default function Home() {
               }}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"
             >
-              老师登录
+              Teacher Login
             </button>
 
             <button
@@ -55,7 +55,7 @@ export default function Home() {
               }}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition"
             >
-              学生登录
+              Student Login
             </button>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          {isTeacher ? '老师登录' : '学生登录'}
+          {isTeacher ? 'Teacher Login' : 'Student Login'}
         </h2>
 
         {error && (
@@ -79,13 +79,13 @@ export default function Home() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-bold mb-2">
-              {isTeacher ? '密码' : '学生ID'}
+              {isTeacher ? 'Password' : 'Student ID'}
             </label>
             <input
               type={isTeacher ? 'password' : 'text'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={isTeacher ? '输入老师密码' : '输入你的学生ID'}
+              placeholder={isTeacher ? 'Enter teacher password' : 'Enter your student ID'}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -94,7 +94,7 @@ export default function Home() {
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition"
           >
-            登录
+            Login
           </button>
         </form>
 
@@ -106,7 +106,7 @@ export default function Home() {
           }}
           className="w-full mt-4 text-gray-600 hover:text-gray-800 py-2"
         >
-          返回
+          Back
         </button>
       </div>
     </div>

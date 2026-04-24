@@ -70,7 +70,7 @@ export async function bookClass(studentId: string, bookingTime: string) {
     .single()
 
   if (!student || student.credit_hours < 1) {
-    return { data: null, error: new Error('课时不足') }
+    return { data: null, error: new Error('Insufficient credit hours') }
   }
 
   const { data, error } = await supabase
