@@ -53,11 +53,16 @@ export default function TeacherDashboard() {
 
   const handleAddAvailability = async (e: React.FormEvent) => {
     e.preventDefault()
-    await addAvailability(newAvail.day, newAvail.start, newAvail.end)
+    const result = await addAvailability(newAvail.day, newAvail.start, newAvail.end)
+    if (result.error) {
+      alert('Error adding time slot: ' + result.error.message)
+      return
+    }
+    alert('Time slot added successfully!')
     setNewAvail({ day: 0, start: '18:30', end: '20:30' })
     setShowAddForm(false)
-    await new Promise(resolve => setTimeout(resolve, 300))
-    loadData()
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await loadData()
   }
 
   const handleAddStudent = async (e: React.FormEvent) => {
